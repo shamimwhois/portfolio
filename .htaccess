@@ -1,0 +1,31 @@
+# ============================================================================
+#  cPanel / shared-hosting front controller
+#  ----------------------------------------------------------------------------
+#  Upload the whole project into public_html (document root) and this file
+#  makes Apache silently route every request into Laravel's public/ folder —
+#  NO file moves, NO symlinks, NO subdomain required.
+#
+#  Requirements (standard on cPanel):
+#    - mod_rewrite enabled (default) + AllowOverride All (default on cPanel)
+#    - PHP 8.3+ selected via MultiPHP Manager (this app requires ^8.3)
+#
+#  Verified against Apache 2.4: routes, query strings, static assets and
+#  direct /public/* access all work; .env, vendor/, storage/ etc. are 403.
+# ============================================================================
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # 1) Block direct access to sensitive files and folders.
+    RewriteRule ^(\.env|\.env\.example|\.git|app|bootstrap|config|database|docs|node_modules|resources|routes|storage|tests|vendor)(/|$) - [F,L,NC]
+
+    # 2) Requests that already target the public folder are served as-is.
+    #    This rule also terminates the internal rewrite and prevents loops.
+    RewriteRule ^public($|/) - [L,NC]
+
+    # 3) Send everything else to the Laravel public folder.
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Never allow directory listings.
+Options -Indexes

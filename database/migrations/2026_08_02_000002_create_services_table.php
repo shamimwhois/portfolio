@@ -1,0 +1,38 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('service_categories', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('slug')->unique();
+            $table->unsignedInteger('sort_order')->default(0);
+            $table->timestamps();
+        });
+
+        Schema::create('service_tiers', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('service_category_id')->constrained()->cascadeOnDelete();
+            $table->string('name');
+            $table->string('price');
+            $table->string('billing')->default('one-time'); // one-time | month
+            $table->json('features')->nullable();
+            $table->boolean('popular')->default(false);
+            $table->string('cta')->default('outline'); // outline | gradient
+            $table->unsignedInteger('sort_order')->default(0);
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('service_tiers');
+        Schema::dropIfExists('service_categories');
+    }
+};
